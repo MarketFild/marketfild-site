@@ -53,6 +53,19 @@
     window.addEventListener('load', function () { setTimeout(showAll, 1200); });
   }
 
+
+  /* sticky call-to-action bar: appears once you're past the hero */
+  var dock = document.getElementById('dock');
+  if (dock) {
+    var shown = false;
+    var onScroll = function () {
+      var past = window.scrollY > 620;
+      if (past !== shown) { shown = past; dock.classList.toggle('on', past); }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
   /* lazy-load the booking calendar only when it scrolls into view */
   var wrap = document.getElementById('cal-wrap');
   if (!wrap) return;
