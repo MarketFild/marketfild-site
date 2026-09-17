@@ -54,6 +54,79 @@
   }
 
 
+
+  /* contact form */
+  var form = document.getElementById('cform');
+  if (form) {
+    var btn = document.getElementById('fbtn');
+    var msg = document.getElementById('fmsg');
+
+    var say = function (text, good) {
+      msg.textContent = text;
+      msg.className = 'fmsg ' + (good ? 'ok' : 'bad');
+    };
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var required = ['fn', 'fe', 'fb', 'fh'];
+      for (var i = 0; i < required.length; i++) {
+        var el = document.getElementById(required[i]);
+        if (!el.value.trim()) {
+          say('Please fill in every field that is not marked optional.', false);
+          el.focus();
+          return;
+        }
+      }
+      var email = document.getElementById('fe');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) {
+        say('That email address does not look right. Please check it.', false);
+        email.focus();
+        return;
+      }
+
+      var data = new FormData(form);
+      var picked = [];
+      form.querySelectorAll('input[name="Channels"]:checked').forEach(function (c) { picked.push(c.value); });
+      data.delete('Channels');
+      data.append('Channels', picked.length ? picked.join(', ') : 'Not specified');
+
+      var key = data.get('access_key');
+      if (!key || key === 'WEB3FORMS_ACCESS_KEY') {
+        say('This form is not connected yet. Please email contact@marketfild.com instead.', false);
+        return;
+      }
+
+      btn.setAttribute('aria-busy', 'true');
+      btn.textContent = 'Sending...';
+      msg.className = 'fmsg';
+
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: data
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.success) {
+            form.reset();
+            say('Thank you. We have got it and will reply within one working day.', true);
+            btn.textContent = 'Sent';
+            setTimeout(function () {
+              btn.removeAttribute('aria-busy');
+              btn.textContent = 'Send message';
+            }, 4000);
+          } else {
+            throw new Error('rejected');
+          }
+        })
+        .catch(function () {
+          btn.removeAttribute('aria-busy');
+          btn.textContent = 'Send message';
+          say('Something went wrong sending that. Please email contact@marketfild.com directly.', false);
+        });
+    });
+  }
+
   /* sticky call-to-action bar: appears once you're past the hero */
   var dock = document.getElementById('dock');
   if (dock) {
