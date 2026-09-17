@@ -50,126 +50,68 @@
   <div class="wrap" style="max-width:980px">
     <p class="eyebrow rv"><b></b>Contact</p>
     <h1 class="xl" data-split>Book the free audit.</h1>
-    <p class="lede rv" style="margin-top:26px">Pick a time below for a 30-minute call, or <a href="#message" style="color:#8AAAFF;text-decoration:underline;text-underline-offset:3px">send us a message instead</a>. Either way you get a free written audit of your account.</p>
+    <p class="lede rv" style="margin-top:26px">Pick a time below for a 30-minute call, or send us the details. Either way you get a free written audit of your account.</p>
   </div>
 </section>
 
 <section class="sec">
   <div class="wrap">
-    <div class="grid2" style="align-items:start;gap:34px">
-      <div class="rv">
-        <div class="calwrap" id="cal-wrap"><div id="cal-inline" style="width:100%;height:100%"></div><div class="calskel" aria-hidden="true"><div class="b t"></div><div class="b s"></div><div class="grid"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div></div></div><p class="calnote">Calendar loads as you scroll. If it doesn't appear, <a href="https://cal.com/marketfild/strategy-call" style="color:#0043FB;font-weight:600">open the booking page</a>.</p>
-      </div>
-      <div class="rv">
-        <h2 class="md" style="margin-bottom:18px">What happens on the call</h2>
+    <div class="bookgrid">
+      <div class="bookcard rv">
+        <h3 class="md">Book a 30-minute call</h3>
+        <p>Pick a slot and we'll talk it through live. Screen share if you want, or just describe the problem.</p>
         <ul class="ticks">
-          <li>You tell us which channels you're on and what's bothering you</li>
-          <li>We ask for read-only access to whatever you're comfortable sharing</li>
-          <li>About a week later you get a written audit of the account</li>
-          <li>You keep it. Use it with us, with your current agency, or on your own</li>
+          <li>Tell us which channels you're on</li>
+          <li>We ask for read-only access, only what you're comfortable with</li>
+          <li>A written audit lands about a week later</li>
+          <li>You keep it, with us or not</li>
         </ul>
-        <h2 class="md" style="margin:34px 0 18px">Prefer email?</h2>
-        <p style="color:#4B5570">Write to <a href="mailto:contact@marketfild.com" style="color:#0043FB;font-weight:600">contact@marketfild.com</a> and we'll reply within one working day. Ahmedabad, India. We work IST, and shift to your hours for US and UK accounts.</p>
-        <div class="acts"><a class="btn line" href="https://cal.com/marketfild/strategy-call">Open the booking page</a></div>
+        <div class="go">
+          <button class="btn wht" data-cal-link="marketfild/strategy-call" data-cal-config='{"layout":"month_view"}'>Choose a time</button>
+          <p class="alt2">Or <a href="https://cal.com/marketfild/strategy-call" target="_blank" rel="noopener">open the booking page</a></p>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
 
-
-<section class="sec bone" id="message">
-  <div class="wrap">
-    <div class="head rv" style="max-width:56ch">
-      <p class="eyebrow"><b></b>Prefer to write</p>
-      <h2 class="lg">Send us the details instead.</h2>
-      <p class="lede">Fill this in and we will reply within one working day. The more you tell us, the more useful the first reply is.</p>
-    </div>
-
-    <div class="formwrap rv">
-      <form id="cform" novalidate>
+      <div class="formcard rv">
+        <h3 class="md" style="margin-bottom:8px">Or just send the details</h3>
+        <p style="color:#4B5570;font-size:16px;margin-bottom:24px">Three fields. We reply within one working day.</p>
+        <form class="w3f" id="cform" novalidate>
         <input type="hidden" name="access_key" value="9f134bd1-01b2-4a4c-9fc0-fbea70fa7482">
         <input type="hidden" name="subject" value="New enquiry from marketfild.com">
-        <input type="hidden" name="from_name" value="MarketFild website">
         <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
-
         <div class="frow">
-          <div class="f">
-            <label for="fn">Your name</label>
-            <input id="fn" name="Name" type="text" required placeholder="Harsh Bhatt" autocomplete="name">
+          <div class="fld">
+            <label for="cform-n">Your name</label>
+            <input id="cform-n" name="Name" type="text" required placeholder="Full name" autocomplete="name">
           </div>
-          <div class="f">
-            <label for="fe">Work email</label>
-            <input id="fe" name="Email" type="email" required placeholder="you@yourbrand.com" autocomplete="email">
-          </div>
-        </div>
-
-        <div class="frow">
-          <div class="f">
-            <label for="fb">Brand or company</label>
-            <input id="fb" name="Brand" type="text" required placeholder="Your brand name">
-          </div>
-          <div class="f">
-            <label for="fp">Phone or WhatsApp <span class="opt">(optional)</span></label>
-            <input id="fp" name="Phone" type="tel" placeholder="+91" autocomplete="tel">
+          <div class="fld">
+            <label for="cform-e">Work email</label>
+            <input id="cform-e" name="Email" type="email" required placeholder="you@yourbrand.com" autocomplete="email">
           </div>
         </div>
-
-        <div class="f">
-          <label>Where do you sell today?</label>
-          <div class="checks">
-            <label><input type="checkbox" name="Channels" value="Amazon"> Amazon</label>
-            <label><input type="checkbox" name="Channels" value="Flipkart"> Flipkart</label>
-            <label><input type="checkbox" name="Channels" value="Walmart"> Walmart</label>
-            <label><input type="checkbox" name="Channels" value="Blinkit"> Blinkit</label>
-            <label><input type="checkbox" name="Channels" value="Zepto"> Zepto</label>
-            <label><input type="checkbox" name="Channels" value="Instamart"> Instamart</label>
-            <label><input type="checkbox" name="Channels" value="Own website"> Own website</label>
-            <label><input type="checkbox" name="Channels" value="Not selling yet"> Not yet</label>
-          </div>
+        <div class="fld">
+          <label for="cform-b">Brand name or store link</label>
+          <input id="cform-b" name="Brand" type="text" required placeholder="Your brand, or a link to your listing">
         </div>
-
-        <div class="frow">
-          <div class="f">
-            <label for="fh">What do you need most?</label>
-            <select id="fh" name="Needs" required>
-              <option value="">Choose one</option>
-              <option>A free account audit</option>
-              <option>Marketplace management</option>
-              <option>Quick commerce launch</option>
-              <option>Advertising only</option>
-              <option>Catalogue and listings</option>
-              <option>Not sure yet</option>
-            </select>
-          </div>
-          <div class="f">
-            <label for="fs">Monthly online revenue <span class="opt">(optional)</span></label>
-            <select id="fs" name="Revenue">
-              <option value="">Prefer not to say</option>
-              <option>Under 5 lakh</option>
-              <option>5 to 25 lakh</option>
-              <option>25 lakh to 1 crore</option>
-              <option>Over 1 crore</option>
-              <option>Selling outside India</option>
-            </select>
-          </div>
+        <div class="fld">
+          <label>Where do you sell? <em>(optional)</em></label>
+          <div class="chips"><label><input type="checkbox" name="Channels" value="Amazon">Amazon</label><label><input type="checkbox" name="Channels" value="Flipkart">Flipkart</label><label><input type="checkbox" name="Channels" value="Walmart">Walmart</label><label><input type="checkbox" name="Channels" value="Blinkit">Blinkit</label><label><input type="checkbox" name="Channels" value="Zepto">Zepto</label><label><input type="checkbox" name="Channels" value="Instamart">Instamart</label><label><input type="checkbox" name="Channels" value="Own website">Own website</label><label><input type="checkbox" name="Channels" value="Not yet">Not yet</label></div>
         </div>
-
-        <div class="f">
-          <label for="fm">Anything we should know? <span class="opt">(optional)</span></label>
-          <textarea id="fm" name="Message" placeholder="A store link, the number you cannot explain, or just what is bothering you."></textarea>
-          <p class="hint">A link to your Amazon or Flipkart storefront helps us give you something useful in the first reply.</p>
+        <div class="fld">
+          <label for="cform-m">What's the problem? <em>(optional)</em></label>
+          <textarea id="cform-m" name="Message" placeholder="Anything you want us to look at first."></textarea>
         </div>
-
-        <div class="fsubmit">
-          <button class="btn" type="submit" id="fbtn">Send message</button>
-          <p class="small">We reply within one working day. No newsletter, no follow-up sequence.</p>
+        <div class="fgo">
+          <button class="btn" type="submit">Get my free audit</button>
+          <p>One reply within a working day. No newsletter, no sequence.</p>
         </div>
-
-        <div class="fmsg" id="fmsg" role="status" aria-live="polite"></div>
+        <div class="fmsg" role="status" aria-live="polite"></div>
       </form>
+      </div>
     </div>
   </div>
 </section>
+
 
 <section class="sec bone">
   <div class="wrap">

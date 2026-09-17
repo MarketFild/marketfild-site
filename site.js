@@ -55,77 +55,6 @@
 
 
 
-  /* contact form */
-  var form = document.getElementById('cform');
-  if (form) {
-    var btn = document.getElementById('fbtn');
-    var msg = document.getElementById('fmsg');
-
-    var say = function (text, good) {
-      msg.textContent = text;
-      msg.className = 'fmsg ' + (good ? 'ok' : 'bad');
-    };
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      var required = ['fn', 'fe', 'fb', 'fh'];
-      for (var i = 0; i < required.length; i++) {
-        var el = document.getElementById(required[i]);
-        if (!el.value.trim()) {
-          say('Please fill in every field that is not marked optional.', false);
-          el.focus();
-          return;
-        }
-      }
-      var email = document.getElementById('fe');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) {
-        say('That email address does not look right. Please check it.', false);
-        email.focus();
-        return;
-      }
-
-      var data = new FormData(form);
-      var picked = [];
-      form.querySelectorAll('input[name="Channels"]:checked').forEach(function (c) { picked.push(c.value); });
-      data.delete('Channels');
-      data.append('Channels', picked.length ? picked.join(', ') : 'Not specified');
-
-      var key = data.get('access_key');
-      if (!key || key === 'WEB3FORMS_ACCESS_KEY') {
-        say('This form is not connected yet. Please email contact@marketfild.com instead.', false);
-        return;
-      }
-
-      btn.setAttribute('aria-busy', 'true');
-      btn.textContent = 'Sending...';
-      msg.className = 'fmsg';
-
-      fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        body: data
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (res) {
-          if (res.success) {
-            form.reset();
-            say('Thank you. We have got it and will reply within one working day.', true);
-            btn.textContent = 'Sent';
-            setTimeout(function () {
-              btn.removeAttribute('aria-busy');
-              btn.textContent = 'Send message';
-            }, 4000);
-          } else {
-            throw new Error('rejected');
-          }
-        })
-        .catch(function () {
-          btn.removeAttribute('aria-busy');
-          btn.textContent = 'Send message';
-          say('Something went wrong sending that. Please email contact@marketfild.com directly.', false);
-        });
-    });
-  }
 
   /* sticky call-to-action bar: appears once you're past the hero */
   var dock = document.getElementById('dock');
@@ -139,13 +68,67 @@
     onScroll();
   }
 
-  /* lazy-load the booking calendar only when it scrolls into view */
-  var wrap = document.getElementById('cal-wrap');
-  if (!wrap) return;
-  var started = false;
-  function loadCal() {
-    if (started) return;
-    started = true;
+  /* ---- all Web3Forms forms on the page ---- */
+  document.querySelectorAll('form.w3f').forEach(function (form) {
+    var btn = form.querySelector('button[type="submit"]');
+    var msg = form.querySelector('.fmsg');
+    var label = btn ? btn.textContent : 'Send';
+
+    function say(text, good) {
+      msg.textContent = text;
+      msg.className = 'fmsg ' + (good ? 'ok' : 'bad');
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var need = form.querySelectorAll('[required]');
+      for (var i = 0; i < need.length; i++) {
+        if (!need[i].value.trim()) {
+          say('Please fill in the three fields above.', false);
+          need[i].focus();
+          return;
+        }
+      }
+      var email = form.querySelector('input[type="email"]');
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) {
+        say('That email address does not look right.', false);
+        email.focus();
+        return;
+      }
+
+      var data = new FormData(form);
+      var picked = [];
+      form.querySelectorAll('input[name="Channels"]:checked').forEach(function (c) { picked.push(c.value); });
+      if (form.querySelector('input[name="Channels"]')) {
+        data.delete('Channels');
+        data.append('Channels', picked.length ? picked.join(', ') : 'Not specified');
+      }
+      data.append('Page', location.pathname);
+
+      btn.setAttribute('aria-busy', 'true');
+      btn.textContent = 'Sending...';
+      msg.className = 'fmsg';
+
+      fetch('https://api.web3forms.com/submit', { method: 'POST', body: data })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (!res.success) throw new Error('rejected');
+          form.reset();
+          say('Thank you. We have got it and will reply within one working day.', true);
+          btn.textContent = 'Sent';
+          setTimeout(function () { btn.removeAttribute('aria-busy'); btn.textContent = label; }, 4000);
+        })
+        .catch(function () {
+          btn.removeAttribute('aria-busy');
+          btn.textContent = label;
+          say('That did not send. Please email contact@marketfild.com instead.', false);
+        });
+    });
+  });
+
+  /* ---- Cal.com popup, loaded only when a booking button is on the page ---- */
+  if (document.querySelector('[data-cal-link]')) {
     (function (C, A, L) {
       var p = function (a, ar) { a.q.push(ar); };
       var d = C.document;
@@ -162,17 +145,6 @@
       };
     })(window, 'https://app.cal.com/embed/embed.js', 'init');
     Cal('init', { origin: 'https://cal.com' });
-    Cal('inline', { elementOrSelector: '#cal-inline', calLink: 'marketfild/strategy-call', layout: 'month_view' });
     Cal('ui', { hideEventTypeDetails: false, layout: 'month_view' });
-    var done = setInterval(function () {
-      if (wrap.querySelector('iframe')) { wrap.classList.add('ready'); clearInterval(done); }
-    }, 300);
-    setTimeout(function () { clearInterval(done); wrap.classList.add('ready'); }, 9000);
   }
-  if ('IntersectionObserver' in window) {
-    var co = new IntersectionObserver(function (en) {
-      if (en[0].isIntersecting) { loadCal(); co.disconnect(); }
-    }, { rootMargin: '300px' });
-    co.observe(wrap);
-  } else { loadCal(); }
 })();

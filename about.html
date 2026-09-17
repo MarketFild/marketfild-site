@@ -111,12 +111,58 @@
   </div>
 </section>
 
-<section class="sec cta">
+<section class="sec dark" id="contact">
   <div class="wrap">
-    <h2 class="lg rv">Let's see if we're a fit.</h2>
-    <p class="lede rv">Thirty minutes, no pitch deck. If we're not right for you we'll say so on the call.</p>
-    <a class="btn wht rv" href="contact.html">Book a 30-minute call</a>
-    <p class="alt rv">Or email <a href="mailto:contact@marketfild.com">contact@marketfild.com</a></p>
+    <div class="head rv" style="max-width:60ch">
+      <p class="eyebrow"><b></b>Free account audit</p>
+      <h2 class="lg">Let's see if we're a fit.</h2>
+      <p class="lede">Thirty minutes, no pitch deck. If we're not right for you we'll say so on the call.</p>
+    </div>
+    <div class="bookgrid">
+      <div class="formcard rv">
+        <form class="w3f" id="f-about" novalidate>
+        <input type="hidden" name="access_key" value="9f134bd1-01b2-4a4c-9fc0-fbea70fa7482">
+        <input type="hidden" name="subject" value="New enquiry from marketfild.com">
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+        <div class="frow">
+          <div class="fld">
+            <label for="f-about-n">Your name</label>
+            <input id="f-about-n" name="Name" type="text" required placeholder="Full name" autocomplete="name">
+          </div>
+          <div class="fld">
+            <label for="f-about-e">Work email</label>
+            <input id="f-about-e" name="Email" type="email" required placeholder="you@yourbrand.com" autocomplete="email">
+          </div>
+        </div>
+        <div class="fld">
+          <label for="f-about-b">Brand name or store link</label>
+          <input id="f-about-b" name="Brand" type="text" required placeholder="Your brand, or a link to your listing">
+        </div>
+        <div class="fld">
+          <label for="f-about-m">What's the problem? <em>(optional)</em></label>
+          <textarea id="f-about-m" name="Message" placeholder="Anything you want us to look at first."></textarea>
+        </div>
+        <div class="fgo">
+          <button class="btn" type="submit">Get my free audit</button>
+          <p>One reply within a working day.</p>
+        </div>
+        <div class="fmsg" role="status" aria-live="polite"></div>
+      </form>
+      </div>
+      <div class="bookcard rv" style="background:var(--navy2);border:1px solid var(--line-n)">
+        <h3 class="md">Rather talk it through?</h3>
+        <p>Book 30 minutes. No deck, no pitch. Bring the number you can't explain.</p>
+        <ul class="ticks">
+          <li>Written audit about a week later</li>
+          <li>Yours to keep, with us or not</li>
+          <li>We'll say early if we're not a fit</li>
+        </ul>
+        <div class="go">
+          <button class="btn" data-cal-link="marketfild/strategy-call" data-cal-config='{"layout":"month_view"}'>Choose a time</button>
+          <p class="alt2">Or email <a href="mailto:contact@marketfild.com">contact@marketfild.com</a></p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 </main>
