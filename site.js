@@ -127,6 +127,76 @@
     });
   });
 
+
+  /* ---- currency toggle ---- */
+  var curBtns = document.querySelectorAll('.curr button');
+  if (curBtns.length) {
+    var setCur = function (cur) {
+      document.querySelectorAll('.m').forEach(function (el) {
+        el.innerHTML = el.getAttribute('data-' + cur);
+      });
+      curBtns.forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-cur') === cur ? 'true' : 'false');
+      });
+      if (window.mfCalc) window.mfCalc(cur);
+    };
+    curBtns.forEach(function (b) {
+      b.addEventListener('click', function () { setCur(b.getAttribute('data-cur')); });
+    });
+  }
+
+  /* ---- rent vs own calculator ---- */
+  var plan = document.getElementById('c-plan');
+  if (plan) {
+    var apps = document.getElementById('c-apps'),
+        rev  = document.getElementById('c-rev'),
+        fee  = document.getElementById('c-fee'),
+        care = document.getElementById('c-care');
+    var RATE = 88;                      // rough USD to INR, display only
+    var BUILD = 4200, CARE = 95, SERVER = 3;
+    var cur = 'usd';
+
+    function fmt(n) {
+      n = Math.round(n);
+      if (cur === 'inr') return '\u20B9' + (n * RATE).toLocaleString('en-IN');
+      return '$' + n.toLocaleString('en-US');
+    }
+    function run() {
+      var rentM = (+plan.value) + (+apps.value) + ((+rev.value) * (+fee.value) / 100);
+      var rent3 = rentM * 36;
+      var carePer = care && care.checked ? CARE : 0;
+      var ownM  = (carePer + SERVER) * 36;
+      var own3  = BUILD + ownM;
+      document.getElementById('c-plan-v').textContent = fmt(+plan.value);
+      document.getElementById('c-apps-v').textContent = fmt(+apps.value);
+      document.getElementById('c-rev-v').textContent  = fmt(+rev.value);
+      document.getElementById('c-fee-v').textContent  = (+fee.value).toFixed(1) + '%';
+      document.getElementById('o-rent-m').textContent = fmt(rentM);
+      document.getElementById('o-rent-3').textContent = fmt(rent3);
+      document.getElementById('o-own-1').textContent  = fmt(BUILD);
+      document.getElementById('o-own-m').textContent  = fmt(ownM);
+      document.getElementById('o-own-3').textContent  = fmt(own3);
+
+      var v = document.getElementById('o-verdict');
+      var diff = rent3 - own3;
+      if (rentM <= 0) {
+        v.innerHTML = 'Put in what you pay now and this will compare it against owning the store outright.';
+      } else if (diff > 0) {
+        var months = Math.ceil(BUILD / Math.max(rentM - (carePer + SERVER), 1));
+        v.innerHTML = 'Owning costs <strong>' + fmt(diff) + ' less</strong> over three years. ' +
+                      'The build pays for itself at around <strong>month ' + months + '</strong>.';
+      } else {
+        v.innerHTML = 'At these numbers renting is <strong>' + fmt(-diff) + ' cheaper</strong> over three years. ' +
+                      'We would tell you to stay where you are. Owning starts winning once your platform and apps ' +
+                      'cost more than about ' + fmt(BUILD / 36 + carePer + SERVER) + ' a month.';
+      }
+    }
+    [plan, apps, rev, fee].forEach(function (el) { el.addEventListener('input', run); });
+    if (care) care.addEventListener('change', run);
+    window.mfCalc = function (c) { cur = c; run(); };
+    run();
+  }
+
   /* ---- Cal.com popup, loaded only when a booking button is on the page ---- */
   if (document.querySelector('[data-cal-link]')) {
     (function (C, A, L) {
