@@ -146,54 +146,163 @@
   }
 
   /* ---- rent vs own calculator ---- */
-  var plan = document.getElementById('c-plan');
-  if (plan) {
-    var apps = document.getElementById('c-apps'),
-        rev  = document.getElementById('c-rev'),
-        fee  = document.getElementById('c-fee'),
-        care = document.getElementById('c-care');
-    var RATE = 88;                      // rough USD to INR, display only
-    var BUILD = 4200, CARE = 95, SERVER = 3;
+  var cPlan = document.getElementById('c-plan');
+  if (cPlan) {
+    var RATE = 88, BUILD = 4200, CARE = 95, SERVER = 3, MONTHS = 36;
     var cur = 'usd';
 
-    function fmt(n) {
-      n = Math.round(n);
-      if (cur === 'inr') return '\u20B9' + (n * RATE).toLocaleString('en-IN');
-      return '$' + n.toLocaleString('en-US');
-    }
-    function run() {
-      var rentM = (+plan.value) + (+apps.value) + ((+rev.value) * (+fee.value) / 100);
-      var rent3 = rentM * 36;
-      var carePer = care && care.checked ? CARE : 0;
-      var ownM  = (carePer + SERVER) * 36;
-      var own3  = BUILD + ownM;
-      document.getElementById('c-plan-v').textContent = fmt(+plan.value);
-      document.getElementById('c-apps-v').textContent = fmt(+apps.value);
-      document.getElementById('c-rev-v').textContent  = fmt(+rev.value);
-      document.getElementById('c-fee-v').textContent  = (+fee.value).toFixed(1) + '%';
-      document.getElementById('o-rent-m').textContent = fmt(rentM);
-      document.getElementById('o-rent-3').textContent = fmt(rent3);
-      document.getElementById('o-own-1').textContent  = fmt(BUILD);
-      document.getElementById('o-own-m').textContent  = fmt(ownM);
-      document.getElementById('o-own-3').textContent  = fmt(own3);
+    /* slider position 0-1000 maps to value on a curve, so small numbers stay controllable
+       even when the top of the range is very large */
+    var F = {
+      'c-plan': { max: 2000,    pow: 2.2, money: true },
+      'c-apps': { max: 2000,    pow: 2.2, money: true },
+      'c-rev':  { max: 1000000, pow: 3.0, money: true },
+      'c-fee':  { max: 100,     pow: 2.6, money: false }
+    };
+    var toVal = function (id, pos) {
+      var f = F[id], v = f.max * Math.pow(pos / 1000, f.pow);
+      if (!f.money) return Math.round(v * 10) / 10;
+      return v < 1000 ? Math.round(v) : Math.round(v / 50) * 50;
+    };
+    var toPos = function (id, val) {
+      var f = F[id];
+      return Math.max(0, Math.min(1000, Math.round(1000 * Math.pow(Math.max(val, 0) / f.max, 1 / f.pow))));
+    };
 
-      var v = document.getElementById('o-verdict');
-      var diff = rent3 - own3;
+    var money = function (n) {
+      n = Math.round(n);
+      return cur === 'inr'
+        ? '\u20B9' + (n * RATE).toLocaleString('en-IN')
+        : '$' + n.toLocaleString('en-US');
+    };
+    var shortMoney = function (n) {
+      n = Math.round(n);
+      if (cur === 'inr') {
+        var r = n * RATE;
+        if (r >= 10000000) return '\u20B9' + (r / 10000000).toFixed(1) + 'Cr';
+        if (r >= 100000) return '\u20B9' + (r / 100000).toFixed(1) + 'L';
+        if (r >= 1000) return '\u20B9' + Math.round(r / 1000) + 'k';
+        return '\u20B9' + r;
+      }
+      if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return '$' + Math.round(n / 1000) + 'k';
+      return '$' + n;
+    };
+
+    var ids = ['c-plan', 'c-apps', 'c-rev', 'c-fee'];
+    var care = document.getElementById('c-care');
+    var vals = {};
+
+    ids.forEach(function (id) {
+      var rng = document.getElementById(id),
+          num = document.getElementById(id + '-n');
+      vals[id] = parseFloat(num.value) || 0;
+      rng.value = toPos(id, vals[id]);
+      document.getElementById(id + '-hi').textContent =
+        F[id].money ? shortMoney(F[id].max) : F[id].max + '%';
+
+      rng.addEventListener('input', function () {
+        vals[id] = toVal(id, +rng.value);
+        num.value = vals[id];
+        paint(id); run();
+      });
+      num.addEventListener('input', function () {
+        var v = parseFloat(num.value);
+        if (isNaN(v) || v < 0) v = 0;
+        if (v > F[id].max) { v = F[id].max; num.value = v; }
+        vals[id] = v;
+        rng.value = toPos(id, v);
+        paint(id); run();
+      });
+    });
+    if (care) care.addEventListener('change', run);
+
+    function paint(id) {
+      var rng = document.getElementById(id);
+      rng.style.setProperty('--p', (rng.value / 10) + '%');
+    }
+
+    function series(rentM, ownStart, ownM) {
+      var r = [], o = [];
+      for (var m = 0; m <= MONTHS; m++) { r.push(rentM * m); o.push(ownStart + ownM * m); }
+      return [r, o];
+    }
+
+    function chart(r, o) {
+      var W = 560, H = 240, L = 46, R = 14, T = 14, B = 30;
+      var max = Math.max(r[MONTHS], o[MONTHS], 1);
+      var x = function (m) { return L + (W - L - R) * (m / MONTHS); };
+      var y = function (v) { return T + (H - T - B) * (1 - v / max); };
+      var p = [];
+      for (var g = 0; g <= 4; g++) {
+        var gy = T + (H - T - B) * (g / 4);
+        p.push('<line class="grid" x1="' + L + '" y1="' + gy + '" x2="' + (W - R) + '" y2="' + gy + '"/>');
+        p.push('<text class="tick" x="6" y="' + (gy + 4) + '">' + shortMoney(max * (1 - g / 4)) + '</text>');
+      }
+      p.push('<line class="axis" x1="' + L + '" y1="' + (H - B) + '" x2="' + (W - R) + '" y2="' + (H - B) + '"/>');
+      [0, 12, 24, 36].forEach(function (m) {
+        p.push('<text class="tick" x="' + (x(m) - 8) + '" y="' + (H - B + 18) + '">' + m + 'm</text>');
+      });
+      var path = function (arr) {
+        return arr.map(function (v, m) { return (m ? 'L' : 'M') + x(m).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' ');
+      };
+      p.push('<path class="rentline" d="' + path(r) + '"/>');
+      p.push('<path class="ownline" d="' + path(o) + '"/>');
+      var cross = -1;
+      for (var m = 1; m <= MONTHS; m++) { if (r[m] >= o[m]) { cross = m; break; } }
+      if (cross > 0) {
+        var cx = x(cross), cy = y(o[cross]);
+        p.push('<circle class="xoring" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="9"/>');
+        p.push('<circle class="xo" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="4.5"/>');
+        var tx = Math.min(cx + 10, W - 120);
+        p.push('<text class="xolab" x="' + tx.toFixed(1) + '" y="' + Math.max(cy - 14, 22).toFixed(1) + '">pays for itself, month ' + cross + '</text>');
+      }
+      document.getElementById('ccv').innerHTML = p.join('');
+      return cross;
+    }
+
+    function run() {
+      var rentM = vals['c-plan'] + vals['c-apps'] + (vals['c-rev'] * vals['c-fee'] / 100);
+      var carePer = (care && care.checked) ? CARE : 0;
+      var ownM = carePer + SERVER;
+      var rent3 = rentM * MONTHS, own3 = BUILD + ownM * MONTHS;
+      var s = series(rentM, BUILD, ownM);
+      var cross = chart(s[0], s[1]);
+
+      document.getElementById('o-rent-3').textContent = money(rent3);
+      document.getElementById('o-own-3').textContent = money(own3);
+      var top = Math.max(rent3, own3, 1);
+      document.getElementById('bar-rent').style.width = (rent3 / top * 100) + '%';
+      document.getElementById('bar-own').style.width = (own3 / top * 100) + '%';
+
+      var head = document.getElementById('o-head'),
+          sub = document.getElementById('o-sub'),
+          pay = document.getElementById('o-pay'),
+          diff = rent3 - own3;
+
       if (rentM <= 0) {
-        v.innerHTML = 'Put in what you pay now and this will compare it against owning the store outright.';
-      } else if (diff > 0) {
-        var months = Math.ceil(BUILD / Math.max(rentM - (carePer + SERVER), 1));
-        v.innerHTML = 'Owning costs <strong>' + fmt(diff) + ' less</strong> over three years. ' +
-                      'The build pays for itself at around <strong>month ' + months + '</strong>.';
+        head.textContent = '\u2014'; head.className = 'big';
+        sub.textContent = 'Put in what your platform and apps cost you each month.';
+        pay.hidden = true; return;
+      }
+      if (diff > 0) {
+        head.textContent = money(diff) + ' saved';
+        head.className = 'big win';
+        sub.textContent = 'That is what owning the store keeps in your business over three years, on the numbers you entered.';
+        if (cross > 0) { pay.hidden = false; pay.textContent = 'Pays for itself in month ' + cross; }
+        else pay.hidden = true;
       } else {
-        v.innerHTML = 'At these numbers renting is <strong>' + fmt(-diff) + ' cheaper</strong> over three years. ' +
-                      'We would tell you to stay where you are. Owning starts winning once your platform and apps ' +
-                      'cost more than about ' + fmt(BUILD / 36 + carePer + SERVER) + ' a month.';
+        head.textContent = money(-diff) + ' cheaper to rent';
+        head.className = 'big lose';
+        sub.textContent = 'At these numbers we would tell you to stay where you are. Owning starts winning once your platform and apps pass about ' + money(BUILD / MONTHS + ownM) + ' a month.';
+        pay.hidden = true;
       }
     }
-    [plan, apps, rev, fee].forEach(function (el) { el.addEventListener('input', run); });
-    if (care) care.addEventListener('change', run);
-    window.mfCalc = function (c) { cur = c; run(); };
+
+    ids.forEach(paint);
+    window.mfCalc = function (c) { cur = c; ids.forEach(function (id) {
+      document.getElementById(id + '-hi').textContent = F[id].money ? shortMoney(F[id].max) : F[id].max + '%';
+    }); run(); };
     run();
   }
 
